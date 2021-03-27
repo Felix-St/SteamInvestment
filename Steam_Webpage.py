@@ -82,7 +82,7 @@ for item in investmentList:
     
 # If no costs are specified the default value is set to zero. It is recommended
 # to the set the costs manually as shown below the default initialization.
-costInvestment = [0] * len(dataInvestments)
+costInvestments = [0] * len(dataInvestments)
 
 #costInvestments = [38.50,38.50]
 
