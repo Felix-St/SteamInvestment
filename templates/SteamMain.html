@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Steam Market Watch</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,300italic,400italic,700italic">
+	
+	
+	
+	<style>
+		.chessStatus{  
+		width: 20%;
+		height: 20%;
+		border: 1px solid black;
+		background-color: white;
+		color:black;
+		}
+	</style>
+	
+</head>
+
+<body id="page-top" style = "text-align: center' ">
+    
+		
+	
+	{% for item in dataInvestments %}
+		<p style="text-align: center;font-size: 30px">Current Value: {{ dataInvestments[loop.index0][-1] }}€</p>
+		<canvas id={{'myChart'+loop.index0|string}} width="100%" height="10%"></canvas>
+	{% endfor %}
+	<!---
+	<p style="text-align: center;font-size: 30px">Current Value Wert F: {{ "{:.2f}".format(value1) }}€</p>
+	<p style="text-align: center;font-size: 30px">Aktueller Wert J: {{ "{:.2f}".format(value2) }}€</p>
+	<p style="text-align: center;font-size: 30px">Aktueller Gewinn F: {{ "{:.2f}".format(value3) }}€</p>
+	<p style="text-align: center;font-size: 30px">Aktueller Gewinn J: {{ "{:.2f}".format(value4) }}€</p>
+	--->
+</body>
+<footer style="text-align:center">Created with Chart.js and Python-flask</footer>
+</html>
+
+
+<!-- Javascript for the charts-->
+<script src="{{ url_for('static', filename ='assets/js/Chart.bundle.js') }}"></script>
+<script src="{{ url_for('static', filename ='assets/js/Chart.bundle.min.js') }}"></script>
+
+{% for item in dataInvestments %}
+	<script>
+	var ctx = document.getElementById('{{('myChart'+loop.index0|string)|string}}').getContext('2d');
+	var myChart = new Chart(ctx, {
+		type: 'line',
+		data: {
+			labels: {{dateVal | safe}},
+			datasets: [{
+				label: '€ of Stickers',
+				data: {{dataInvestments[loop.index0]}},
+				backgroundColor: 
+					'rgba(255, 156, 86, 0.2)',
+					
+				
+				borderColor: 'rgba(255, 99, 132, 1)',
+					
+				
+				borderWidth: 1
+			}]
+		},
+		options: {
+			scales: {
+				yAxes: [{
+					ticks: {
+						beginAtZero: true
+					}
+				}]
+				
+			}
+		}
+	});
+	</script>
+{% endfor %}
+
