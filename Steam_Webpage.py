@@ -13,34 +13,40 @@ import copy
 import atexit
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
-
-
 import csv
 
 app = Flask(__name__)
 
 
-
-
-dateAll = []
-
-valueInvestments = []
-
 #############################################################################
 # Global Variables
 #############################################################################
-
 # Cost for the investment (has obviously to be manually set)
-costInvestment1 = 38.50
-costInvestment2 = 38.50
+
+# Automatically fetched value with respective date
+dateAll = []
+valueInvestments = []
+
+dataInvestments = []
 
 
-# Current value of the investment (automatically fetched)
-# Create one dictionary with the item name as key and the amount as value, also
-# create one variable to hold its total value (valueInvestment3,valueInvestment4,...)
-valueInvestment1 = 0
-valueInvestment2 = 0
+for item in investmentList:
+    dataInvestments.append([])
 
+###############################################################################
+# The only things that needs manually changing is the bit below, because obv 
+# it is not possible to grab your investments automatically. For each 
+# Investment (that is for each distinct chart/graph) you need to declare
+# a dictionary holding the items you have invested in. The dictionaries have
+# the structure name:amount, the example below should make that quite clear.
+# Also if you want to calculate your profit you need to enter the amount you
+# have spent on the respective investment (dictionary) in the 'costInvestments' list.
+# Moreover you have to add the additional dictonaries you create to the investmentList
+# which is initialized below the dictionaries.
+    
+    
+costInvestments = [38.50,38.50]
+    
 itemsInvestment1 ={'Sticker | Stone Scales (Foil)':1,
 'Sticker | Ancient Beast (Foil)':1,
 'Sticker | Battle Scarred (Holo)':1,
@@ -70,30 +76,40 @@ itemsInvestment2 ={'Sticker | Mastermind':1,
 'Sticker | Gold Web (Foil)':1,
 }
 
-
 investmentList = [itemsInvestment1,itemsInvestment2]
-dataInvestments = []
 
-for item in investmentList:
-    dataInvestments.append([])
+##############################################################################
 
 def calculateValue(items_dict):
+    # Generic function to calculate the total value of an investment structured
+    # like the dictionaries above. This functin is called in the background task
+    # (executing every hour) to update the prices. Hence this function can be easily
+    # 'copy/pasted' and it retains full functionality so feel free to use it in you
+    # own project.
+    
     itemsInvestment = {}
     itemsInvestment.clear()
     valueInvestment = 0
     for i,item in enumerate(items_dict):
+        # Scrape the needed information from the json object that is returned by
+        # the request made by the url below (you can test it manually in your browser
+        # to see what is actually returned)
         key = copy.deepcopy(item)
         item = item.replace(" ","%20")
         url ='https://steamcommunity.com/market/priceoverview/?appid=730&currency=3&market_hash_name=' + item
         contents = urllib.request.urlopen(str(url))
         contentsJson = json.load(contents)
         
+        # Suboptimal but having a 3.5 seconds timeout ensures that steam doesn't 
+        # this server for requesting too often (20 requests per minute are allowed AFAIK)
         time.sleep(3.5)
+        
         # You can choose between 'lowest_price' or 'median_price' (using 'volume' you can also
         # get the volume of the respective item on the steam market)
         itemsInvestment[key] = contentsJson['lowest_price']
         
-        
+    # This loop converts the scraped values to a different decimal representation
+    # and multiplies it by the amount
     for i,item in enumerate(items_dict):
         temp = itemsInvestment.get(item)
         if temp == 0:
@@ -106,27 +122,28 @@ def calculateValue(items_dict):
         
 
 def helper():
+    # This helper funtion calls the 'calculateValue' function for every
+    # investment (dictionary) that was specified and added to the 'investmentList'
     print('Background Task called')
     global investmentList,dataInvestments,dateAll
     
     for i,investment in enumerate(investmentList):
         tempValueInvestment = 0
         tempValueInvestment = calculateValue(investment) 
-        print('Calculated Value',tempValueInvestment)
         dataInvestments[i].append(tempValueInvestment)
-        print(dataInvestments)
-  
+
+    # Get the current time as x values. (Your timezone may differ)
     temp = datetime.now()
     temp = temp.strftime("%d/%m/%Y %H:%M:%S")
     dateAll.append(temp)
 
 def save():
     # Once a day the values are saved to an csv File. When this server is restarted
-    # it automatically searches for an csv file to load.
-    print('test')
+    # it automatically searches for an csv file to load. 
+    raise NotImplementedError('This function is not yet implemented')
     
 def load_data():
-    pass
+    raise NotImplementedError('This function is not yet implemented')
     
 # Call Backgroundtask at the start
 helper()
