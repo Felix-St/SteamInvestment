@@ -30,8 +30,6 @@ valueInvestments = []
 dataInvestments = []
 
 
-for item in investmentList:
-    dataInvestments.append([])
 
 ###############################################################################
 # The only things that needs manually changing is the bit below, because obv 
@@ -45,7 +43,7 @@ for item in investmentList:
 # which is initialized below the dictionaries.
     
     
-costInvestments = [38.50,38.50]
+
     
 itemsInvestment1 ={'Sticker | Stone Scales (Foil)':1,
 'Sticker | Ancient Beast (Foil)':1,
@@ -77,6 +75,16 @@ itemsInvestment2 ={'Sticker | Mastermind':1,
 }
 
 investmentList = [itemsInvestment1,itemsInvestment2]
+
+# Resize list of lists which hold all the scraped values
+for item in investmentList:
+    dataInvestments.append([])
+    
+# If no costs are specified the default value is set to zero. It is recommended
+# to the set the costs manually as shown below the default initialization.
+costInvestment = [0] * len(dataInvestments)
+
+#costInvestments = [38.50,38.50]
 
 ##############################################################################
 
@@ -163,7 +171,7 @@ def main():
     # Main Method to return the Home Page
     global valueInvestments,dateAll,dataInvestments
     global costInvestment1
-    return render_template("SteamMain.html",values = valueInvestments,dataInvestments=dataInvestments,dateVal=dateAll)   
+    return render_template("SteamMain.html",values = valueInvestments,dataInvestments=dataInvestments,dateVal=dateAll,costInvestments=costInvestments)   
 
 
 if __name__ == "__main__":
